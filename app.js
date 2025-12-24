@@ -129,7 +129,8 @@ app.use((req, res, next) => {
 //error handling middleware
 app.use((err,req,res,next)=>{
     let{statusCode,message}=err;
-    res.status(statusCode || 500).send(message || "Something went wrong");
+    // res.status(statusCode || 500).send(message || "Something went wrong");
+    res.render("error.ejs",{statusCode,message});
 })
 
 app.listen(8080,(req,res)=>{
