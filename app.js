@@ -9,7 +9,9 @@ const ejsMate=require('ejs-mate');
 const wrapAsync=require('./utils/wrapAsync.js');
 const Expresserror=require('./utils/Expresserror.js');
 const { listingSchema } = require('./schema.js'); // Import the Joi schema
+const Review = require('./models/review'); // Import the Review model
 
+// Set up EJS as the templating engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views')); // Set the views directory
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from the public directory
@@ -99,6 +101,21 @@ app.delete("/listings/:id",  wrapAsync(async (req, res) => {
     let deletedListing= await Listing.findByIdAndDelete(listingId);
     console.log("Deleted Listing:", deletedListing);
     res.redirect("/listings");
+}));
+
+//Review Route
+//POST ROUTE
+app.post("/listings/:id/reviews", wrapAsync( async (req, res) => {
+    const listingId = req.params.id;
+    const listing = await Listing.findById(listingId);
+    let newReview = new Review(req.body.review);
+
+    listing.reviews.push(newReview);
+    await newReview.save();//important to save the review first by await
+    await listing.save();
+    // console.log("New Review Added:", newReview);
+    // res.send("Review added successfully");
+    res.redirect(`/listings/${listingId}`);
 }));
 
 
