@@ -31,6 +31,13 @@ const listingSchema=new Schema({
          type: String,
          
     },
+
+    reviews:[
+     {
+          type:Schema.Types.ObjectId,
+          ref:"Review",
+     }
+    ]
 });
 
 const Listing=mongoose.model('Listing',listingSchema);//creation of model

@@ -8,6 +8,7 @@ const methodOverride = require('method-override');
 const ejsMate=require('ejs-mate');
 const wrapAsync=require('./utils/wrapAsync.js');
 const Expresserror=require('./utils/Expresserror.js');
+const { listingSchema } = require('./schema.js'); // Import the Joi schema
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views')); // Set the views directory
@@ -25,6 +26,16 @@ main()
 
 async function main(){
     await mongoose.connect("mongodb://127.0.0.1:27017/wanderlust");
+}
+
+const validateListing=(req,res,next)=>{
+    const {error}=listingSchema.validate(req.body);
+    if(error){
+            throw new Expresserror(400,error.details[0].message);
+        }
+        else{
+            next();
+        }
 }
 
 app.get('/',(req,res)=>{
@@ -55,15 +66,10 @@ app.get("/listings/:id",  wrapAsync(async (req,res)=>{
 }));
 
 // Create a new listing
-app.post("/listings", wrapAsync(async (req, res,next) => {
-    // let{ title, description, price, location, country } = req.body;
-    if(!req.body.listing){
-        throw new Expresserror(400,"Invalid Listing Data");
-    }
+app.post("/listings",validateListing, wrapAsync(async (req, res,next) => {
         const newListing=new Listing(req.body.listing);
         await newListing.save();
-        res.redirect("/listings");
-   
+        res.redirect("/listings");  
 })
 );
 
