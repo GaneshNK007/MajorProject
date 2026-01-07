@@ -16,8 +16,8 @@ const listingSchema=new Schema({
          type: String,
          fileName: String, // this is to ensure that the image is a valid file name
          url: String, // this is to ensure that the image is a valid URL
-         default: "https://unsplash.com/photos/nighttime-road-with-stars-shining-above-GRgfv49Nf-M", //default image link
-         set: (v) => v === "" ? "https://unsplash.com/photos/nighttime-road-with-stars-shining-above-GRgfv49Nf-M" : v, //if image is not provided, set a default link
+         default: "https://images.unsplash.com/photo-1501785888041-af3ef285b470", //default image link
+         set: (v) => v === "" ? undefined : v, //if image is not provided, set a default link
          // this is a setter function that sets a default link if no image is provided
     },
     price: {

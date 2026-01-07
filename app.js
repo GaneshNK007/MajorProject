@@ -1,17 +1,18 @@
 const express= require('express');
 const app = express();
 const mongoose= require('mongoose');
-const Listing= require('./models/listing'); // Import the Listing model
 const path= require('path');
-const ejs = require('ejs');
 const methodOverride = require('method-override');
 const ejsMate=require('ejs-mate');
-const wrapAsync=require('./utils/wrapAsync.js');
 const Expresserror=require('./utils/Expresserror.js');
-const { listingSchema , reviewSchema } = require('./schema.js'); // Import the Joi schema
-const Review = require('./models/review'); // Import the Review model
+const session = require('express-session');
+const flash = require('connect-flash');
+
 
 const listingRoutes = require('./routers/listing');
+const reviewRoutes = require('./routers/review');
+
+
 
 // Set up EJS as the templating engine
 app.set('view engine', 'ejs');
@@ -32,19 +33,16 @@ async function main(){
     await mongoose.connect("mongodb://127.0.0.1:27017/wanderlust");
 }
 
-
-
-// Middleware for validating review data
-const validateReview=(req,res,next)=>{
-    const {error}=reviewSchema.validate(req.body);
-    if(error){
-            throw new Expresserror(400,error.details[0].message);
-        }
-        else{
-            next();
-        }
-}
-
+const sessionOptions={
+    secret:'mySecret',
+    resave:false,
+    saveUninitialized:true,
+    cookie:{
+        expires: Date.now() + 1000*60*60*24*7,
+        maxAge: 1000*60*60*24*7,
+        httpOnly:true
+    }
+};
 
 
 app.get('/',(req,res)=>{
@@ -53,46 +51,24 @@ app.get('/',(req,res)=>{
 
 
 
+app.use(session(sessionOptions));
+app.use(flash());
+
+// Flash middleware to set local variables for flash messages
+app.use((req,res,next)=>{
+    res.locals.success=req.flash('success');
+    res.locals.error=req.flash('error');
+    console.log(res.locals.success);
+    next();
+});
+
+
+
 // Use the listing routes
 app.use("/listings", listingRoutes);
 
-
-
-
-//Review Route
-//POST ROUTE
-app.post("/listings/:id/reviews", validateReview, wrapAsync( async (req, res) => {
-    const listingId = req.params.id;
-    const listing = await Listing.findById(listingId);
-    let newReview = new Review(req.body.review);
-
-    listing.reviews.push(newReview);
-    await newReview.save();//important to save the review first by await
-    await listing.save();
-    // console.log("New Review Added:", newReview);
-    // res.send("Review added successfully");
-    res.redirect(`/listings/${listingId}`);
-}));
-
-
-//DELETE REVIEW ROUTE
-app.delete("/listings/:id/reviews/:reviewId", wrapAsync( async (req, res,next) => {
-    const { id: listingId, reviewId } = req.params;
-    await Listing.findByIdAndUpdate(listingId, { $pull: { reviews: reviewId } });
-    await Review.findByIdAndDelete(reviewId);
-    res.redirect(`/listings/${listingId}`);
-}));
-
-
-
-
-
-
-
-
-
-
-
+// Use the review routes
+app.use("/listings/:id/reviews", require("./routers/review"));
 
 
 
