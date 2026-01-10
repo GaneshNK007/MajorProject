@@ -7,10 +7,14 @@ const ejsMate=require('ejs-mate');
 const Expresserror=require('./utils/Expresserror.js');
 const session = require('express-session');
 const flash = require('connect-flash');
+const passport=require('passport');
+const LocalStrategy=require('passport-local');
+const User=require('./models/user');
 
 
 const listingRoutes = require('./routers/listing');
 const reviewRoutes = require('./routers/review');
+const userRoutes=require('./routers/user');
 
 
 
@@ -54,6 +58,13 @@ app.get('/',(req,res)=>{
 app.use(session(sessionOptions));
 app.use(flash());
 
+// Passport.js configuration
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));// Use the local strategy for authentication
+passport.serializeUser(User.serializeUser());// Serialize user instances to the session
+passport.deserializeUser(User.deserializeUser());// End of Passport.js configuration
+
 // Flash middleware to set local variables for flash messages
 app.use((req,res,next)=>{
     res.locals.success=req.flash('success');
@@ -63,14 +74,23 @@ app.use((req,res,next)=>{
 });
 
 
+// app.get('/demouser',async (req,res)=>{
+//     let fakeUser=new User({username:'demoUser',email:'student@gmail.com'});
+//     let user= await User.register(fakeUser,'demopassword');
+//     await user.save();
+//     res.send(user);
+// });
+
+
 
 // Use the listing routes
 app.use("/listings", listingRoutes);
 
 // Use the review routes
-app.use("/listings/:id/reviews", require("./routers/review"));
+app.use("/listings/:id/reviews", reviewRoutes);
 
-
+// Use the user routes
+app.use("/", userRoutes);
 
 //404 route handler
 app.use((req, res, next) => {
