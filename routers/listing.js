@@ -4,6 +4,7 @@ const wrapAsync=require('../utils/wrapAsync.js');
 const Expresserror=require('../utils/Expresserror.js');
 const { listingSchema } = require('../schema.js'); // Import the Joi schema
 const Listing= require('../models/listing'); // Import the Listing model
+const { isLoggedIn } = require('../middleware.js');
 
 
 // Middleware for validating listing data
@@ -27,7 +28,7 @@ router.get("/",  wrapAsync(async (req,res)=>{
 }));
 
 // Create a new listing
-router.get("/new", (req, res) => {
+router.get("/new", isLoggedIn, (req, res) => {
     res.render("new.ejs");
 });
 
@@ -46,7 +47,7 @@ router.get("/:id",  wrapAsync(async (req,res)=>{
 
 
 // Create a new listing
-router.post("/",validateListing, wrapAsync(async (req, res,next) => {
+router.post("/",validateListing,isLoggedIn,wrapAsync(async (req, res,next) => {
         const newListing=new Listing(req.body.listing);
         await newListing.save();
         req.flash("success","New listing created!");
@@ -55,7 +56,7 @@ router.post("/",validateListing, wrapAsync(async (req, res,next) => {
 );
 
 //Edit route
-router.get("/:id/edit",  wrapAsync(async (req, res) => {
+router.get("/:id/edit",isLoggedIn,  wrapAsync(async (req, res) => {
     const listingId = req.params.id;
     const listing = await Listing.findById(listingId);
     if(!listing){
@@ -66,7 +67,7 @@ router.get("/:id/edit",  wrapAsync(async (req, res) => {
 }));
 
 // Update a listing
-router.put("/:id",  wrapAsync(async (req, res) => {
+router.put("/:id",isLoggedIn, wrapAsync(async (req, res) => {
     if(!req.body.listing){
         throw new Expresserror(400,"Invalid Listing Data");
     }
@@ -77,7 +78,7 @@ router.put("/:id",  wrapAsync(async (req, res) => {
 }));
 
 // Delete a listing
-router.delete("/:id",  wrapAsync(async (req, res) => {
+router.delete("/:id",isLoggedIn,wrapAsync(async (req, res) => {
     const listingId = req.params.id;
     let deletedListing= await Listing.findByIdAndDelete(listingId);
     // console.log("Deleted Listing:", deletedListing);
