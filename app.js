@@ -1,3 +1,10 @@
+if(process.env.NODE_ENV !== 'production'){
+    require('dotenv').config();
+}
+
+// require('dotenv').config();
+// console.log(process.env.SECRET_KEY);
+
 const express= require('express');
 const app = express();
 const mongoose= require('mongoose');
@@ -10,6 +17,7 @@ const flash = require('connect-flash');
 const passport=require('passport');
 const LocalStrategy=require('passport-local');
 const User=require('./models/user');
+
 
 
 const listingRoutes = require('./routers/listing');
