@@ -13,10 +13,11 @@
 </head>
 <body>
 
-    <h3>Edit Listing</h3>
-    <div class="row mt-3">
-        <div class="col-8">
-    <form method="POST" action="/listings/<%= listing._id %>?_method=PUT" novalidate class="needs-validation">
+    <div class="row mt-3 justify-content-center">
+        <div class="col-md-8">
+                <h3 class="mb-3">Edit Listing</h3>
+
+        <form method="POST" action="/listings/<%= listing._id %>?_method=PUT" novalidate class="needs-validation" enctype="multipart/form-data">
 
         <div class="mb-3">
             <label for="title" class="form-label">Title</label>
@@ -31,9 +32,13 @@
         </div>
 
         <div class="mb-3">
-            <label for="image" class="form-label">Image URL</label>
-            <input id="image" name="listing[image]" value="<%= listing.image %>" type="text" class="form-control" required>
-            <div class="invalid-feedback">Please provide a valid image URL.</div>
+            Original image:<br>
+            <img src="<%= listing.image.url %>" alt="Listing Image" class="img-thumbnail" style="max-width: 300px;">
+        </div>
+
+        <div class="mb-3">
+            <label for="image" class="form-label">Upload New Image</label>
+            <input id="image" name="listing[image]" type="file" class="form-control">
         </div>
 
         <div class="row">
@@ -58,6 +63,7 @@
 
         <button type="submit" class="btn btn-dark edit-btn mt-3">Update Listing</button>
     </form>
+    </div>
     </div>
     <script 
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 

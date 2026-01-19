@@ -20,9 +20,9 @@ const User=require('./models/user');
 
 
 
-const listingRoutes = require('./routers/listing');
-const reviewRoutes = require('./routers/review');
-const userRoutes=require('./routers/user');
+const listingRoutes = require('./routes/listing');
+const reviewRoutes = require('./routes/review');
+const userRoutes=require('./routes/user');
 
 
 

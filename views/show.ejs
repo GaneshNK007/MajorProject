@@ -9,6 +9,10 @@
     <link href="/css/rating.css" rel="stylesheet">
 </head>
 <body> -->
+<script>
+    const mapToken="<%= process.env.MAP_TOKEN %>";
+    const listing= <%-JSON.stringify(listing)%>;
+</script>    
     <div class="row mt-3">
         <div class="col-8 offset-3">
           <h1><%= listing.title %></h1>
@@ -82,8 +86,9 @@
         </form>
         <% } %>
         
-        <p>Reviews</p>
+       <% if(listing.reviews.length > 0){ %>
         <div class="row">
+            <p>Reviews</p>
          <% listing.reviews.forEach(review => { %>
            <div class="card mb-3 review-card ms-3 col-5">
             <div class="card-body">
@@ -96,5 +101,16 @@
             </form>
            </div>
         <% }); %>
-        </div>
+        </div> 
+        <% } else { %>
+            <p>No reviews yet. Be the first to review!</p>
+        <% } %> 
+        <hr>
     </div>
+    <div class="col-8 offset-3 mb-3 ">
+                <h3>Where You'll Be</h3>
+                <div id="map"></div>
+    </div> 
+
+    <script src="/js/map.js"></script>
+   
