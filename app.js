@@ -13,6 +13,7 @@ const methodOverride = require('method-override');
 const ejsMate=require('ejs-mate');
 const Expresserror=require('./utils/Expresserror.js');
 const session = require('express-session');
+const MongoStore = require('connect-mongo').default;
 const flash = require('connect-flash');
 const passport=require('passport');
 const LocalStrategy=require('passport-local');
@@ -35,6 +36,8 @@ app.use(methodOverride('_method')); // Middleware to support PUT and DELETE meth
 app.engine('ejs',ejsMate);
 
 
+const dbUrl=process.env.ATLASDB_URL;
+
 main()
 .then(() => {
     console.log("Connected to MongoDB");
@@ -42,11 +45,25 @@ main()
 .catch((err)=>{console.log(err);});
 
 async function main(){
-    await mongoose.connect("mongodb://127.0.0.1:27017/wanderlust");
+    await mongoose.connect(dbUrl);
 }
 
+
+const store=MongoStore.create({
+    mongoUrl:dbUrl,
+    crypto:{
+        secret:process.env.SECRET
+    },
+    touchAfter:24*60*60 //time period in seconds
+});
+
+store.on("error",function(e){
+    console.log("Session store error",e);
+});
+
 const sessionOptions={
-    secret:'mySecret',
+    store:store,
+    secret:process.env.SECRET,
     resave:false,
     saveUninitialized:true,
     cookie:{
@@ -60,6 +77,8 @@ const sessionOptions={
 // app.get('/',(req,res)=>{
 //     res.send("Hello World");
 // });
+
+
 
 
 

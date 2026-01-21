@@ -2,6 +2,7 @@ const Listing=require("../models/listing");
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const mapBoxToken = process.env.MAP_TOKEN;
 const geocodingClient = mbxGeocoding({ accessToken: mapBoxToken });
+const Expresserror=require("../utils/Expresserror");
 
 module.exports.index=async (req,res)=>{
    const allListings=await  Listing.find({});
